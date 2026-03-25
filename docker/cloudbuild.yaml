@@ -1,0 +1,65 @@
+steps:
+  # Build and push API image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -f
+      - docker/Dockerfile.api
+      - -t
+      - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-api:$COMMIT_SHA
+      - -t
+      - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-api:latest
+      - .
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-api:$COMMIT_SHA
+
+  # Build and push pipeline image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -f
+      - docker/Dockerfile.pipeline
+      - -t
+      - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-pipeline:$COMMIT_SHA
+      - -t
+      - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-pipeline:latest
+      - .
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-pipeline:$COMMIT_SHA
+
+  # Deploy API to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - vitrine-api
+      - --image=europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-api:$COMMIT_SHA
+      - --region=europe-west1
+      - --platform=managed
+      - --allow-unauthenticated
+      - --service-account=vitrine-cloud-run@vitrine-wamba-2026.iam.gserviceaccount.com
+      - --set-secrets=OPENAI_API_KEY=openai-api-key:latest
+
+  # Update Cloud Run Job for pipeline
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - jobs
+      - update
+      - vitrine-pipeline
+      - --image=europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-pipeline:$COMMIT_SHA
+      - --region=europe-west1
+      - --service-account=vitrine-cloud-run@vitrine-wamba-2026.iam.gserviceaccount.com
+      - --set-secrets=OPENAI_API_KEY=openai-api-key:latest
+
+images:
+  - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-api:$COMMIT_SHA
+  - europe-west1-docker.pkg.dev/vitrine-wamba-2026/vitrine-docker/vitrine-pipeline:$COMMIT_SHA

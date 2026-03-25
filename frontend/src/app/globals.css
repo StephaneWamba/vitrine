@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* ── Fontsource ─────────────────────────────────────────────────── */
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/400-italic.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/dm-sans/400.css";
+@import "@fontsource/dm-sans/500.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+
+/* ── CSS variables ──────────────────────────────────────────────── */
+:root {
+  --bg:            #F5F4F2;
+  --bg-surface:    #FFFFFF;
+  --bg-subtle:     #EEEDE9;
+  --text:          #0A0A0A;
+  --text-muted:    #767672;
+  --text-faint:    #ABABAB;
+  --border:        #E8E7E3;
+  --border-strong: #CFCEC9;
+  --accent:        #C9A96E;
+  --green:         #1A7A4A;
+  --red:           #B83225;
+  --font-display:  "Playfair Display", Georgia, serif;
+  --font-ui:       "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-mono:     "IBM Plex Mono", "Courier New", monospace;
+  --ease:          cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* ── Base — layered so Tailwind utilities take precedence ───────── */
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+  }
+
+  ::placeholder {
+    color: var(--text-faint);
+    opacity: 1;
+  }
+}
+
+/* ── Utilities ──────────────────────────────────────────────────── */
+
+.grid-texture {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.tabnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.display  { font-family: var(--font-display); }
+.mono     { font-family: var(--font-mono); }
+
+.label-caps {
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+.heading-tight { letter-spacing: -0.025em; }
+
+/* Search underline animation */
+.search-line {
+  height: 1px;
+  background: var(--text);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 260ms var(--ease);
+}
+.search-wrap:focus-within .search-line {
+  transform: scaleX(1);
+}
+
+/* Staggered row entrance */
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.row-enter { animation: rowIn 320ms var(--ease-out) both; }
+
+/* Bar fill */
+@keyframes barGrow { from { width: 0; } }
+.bar-fill { animation: barGrow 600ms var(--ease-out) both; }
+
+.count-target { font-variant-numeric: tabular-nums; }
+
+/* Cluster row hover */
+.cluster-row { transition: background 120ms var(--ease); }
+.cluster-row:hover { background: var(--bg-subtle); }
