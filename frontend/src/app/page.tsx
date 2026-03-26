@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition, useCallback } from "react";
-import { search, type SearchResult } from "@/lib/api";
+import { search, parsePriceConstraints, type SearchResult } from "@/lib/api";
 
 const EXAMPLES = [
   "jean slim moins de 80$",
@@ -209,9 +209,25 @@ export default function SearchPage() {
             </p>
           ) : (
             <>
-              <p className="label-caps mb-3" style={{ color: "var(--text-faint)" }}>
-                {results.length} résultat{results.length > 1 ? "s" : ""}
-              </p>
+              <div className="flex items-center gap-4 mb-3 flex-wrap">
+                <p className="label-caps" style={{ color: "var(--text-faint)" }}>
+                  {results.length} résultat{results.length > 1 ? "s" : ""}
+                </p>
+                {(() => {
+                  const { max_price, min_price } = parsePriceConstraints(lastQuery.current);
+                  if (max_price === undefined && min_price === undefined) return null;
+                  const label = max_price !== undefined && min_price !== undefined
+                    ? `${min_price}$ – ${max_price}$`
+                    : max_price !== undefined
+                    ? `max ${max_price}$`
+                    : `min ${min_price}$`;
+                  return (
+                    <span className="label-caps" style={{ color: "var(--accent)", border: "1px solid var(--accent)", borderRadius: 4, padding: "2px 8px" }}>
+                      filtre prix : {label}
+                    </span>
+                  );
+                })()}
+              </div>
               <div className="table-scroll">
                 <table className="w-full table-fixed" style={{ minWidth: 400 }}>
                   <Cols />

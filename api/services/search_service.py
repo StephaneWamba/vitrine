@@ -15,9 +15,25 @@ def _embed_query(query: str) -> list[float]:
     return response.data[0].embedding
 
 
-def search(bq: bigquery.Client, query: str, top_k: int) -> SearchResponse:
+def search(
+    bq: bigquery.Client,
+    query: str,
+    top_k: int,
+    max_price: float | None = None,
+    min_price: float | None = None,
+) -> SearchResponse:
     vector = _embed_query(query)
     vector_json = json.dumps(vector)
+
+    # When a price filter is active, oversample so we still return top_k after filtering
+    candidate_k = top_k * 5 if (max_price is not None or min_price is not None) else top_k
+
+    price_clauses = []
+    if max_price is not None:
+        price_clauses.append(f"c.retail_price <= {max_price}")
+    if min_price is not None:
+        price_clauses.append(f"c.retail_price >= {min_price}")
+    where_clause = f"WHERE {' AND '.join(price_clauses)}" if price_clauses else ""
 
     sql = f"""
     SELECT
@@ -35,13 +51,15 @@ def search(bq: bigquery.Client, query: str, top_k: int) -> SearchResponse:
         TABLE `{TABLE_EMBEDDED}`,
         'embedding',
         (SELECT {vector_json} AS embedding),
-        top_k => {top_k},
+        top_k => {candidate_k},
         distance_type => 'COSINE'
       ) vs
-    JOIN `{TABLE_CLEAN}`     c  ON vs.base.product_id = c.product_id
+    JOIN `{TABLE_CLEAN}`      c  ON vs.base.product_id = c.product_id
     LEFT JOIN `{TABLE_CLUSTERED}` cl ON c.product_id = cl.product_id
     LEFT JOIN `{TABLE_ENRICHED}`  en ON c.product_id = en.product_id
+    {where_clause}
     ORDER BY distance ASC
+    LIMIT {top_k}
     """
 
     rows = list(bq.query(sql).result())

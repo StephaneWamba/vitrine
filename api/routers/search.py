@@ -14,4 +14,4 @@ def search_products(
     body: SearchRequest,
     bq: bigquery.Client = Depends(get_bq_client),
 ) -> SearchResponse:
-    return search_service.search(bq, body.query, body.top_k)
+    return search_service.search(bq, body.query, body.top_k, body.max_price, body.min_price)

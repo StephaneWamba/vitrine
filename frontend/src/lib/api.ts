@@ -26,13 +26,61 @@ export interface SearchResult {
   distance: number;
 }
 
+/** Extract price constraints from a natural-language query.
+ *  Handles patterns like "moins de 80$", "under $80", "max 50€",
+ *  "plus de 30$", "over $30", "entre 20 et 100$".
+ */
+export function parsePriceConstraints(q: string): { max_price?: number; min_price?: number } {
+  const s = q.toLowerCase();
+  let max_price: number | undefined;
+  let min_price: number | undefined;
+
+  // Max price: "moins de 80$", "under $80", "max 80", "80$ max", "jusqu'à 80", "pas plus de 80"
+  const maxPatterns = [
+    /(?:moins de|under|max(?:imum)?|jusqu[''`]?à|pas plus de|au dessus de)\s*[$€£]?\s*(\d+(?:[,.]\d+)?)/,
+    /(\d+(?:[,.]\d+)?)\s*[$€£]?\s*(?:max(?:imum)?|ou moins|et moins)/,
+  ];
+  for (const re of maxPatterns) {
+    const m = s.match(re);
+    if (m) { max_price = parseFloat(m[1].replace(",", ".")); break; }
+  }
+
+  // Min price: "plus de 30$", "over $30", "min 30", "au moins 30", "à partir de 30"
+  const minPatterns = [
+    /(?:plus de|over|min(?:imum)?|au moins|à partir de)\s*[$€£]?\s*(\d+(?:[,.]\d+)?)/,
+    /(\d+(?:[,.]\d+)?)\s*[$€£]?\s*(?:min(?:imum)?|ou plus|et plus)/,
+  ];
+  for (const re of minPatterns) {
+    const m = s.match(re);
+    if (m) { min_price = parseFloat(m[1].replace(",", ".")); break; }
+  }
+
+  // Range: "entre 20 et 100", "between 20 and 100"
+  const rangeMatch = s.match(/(?:entre|between)\s*[$€£]?\s*(\d+(?:[,.]\d+)?)\s*(?:et|and|-)\s*[$€£]?\s*(\d+(?:[,.]\d+)?)/);
+  if (rangeMatch) {
+    min_price = parseFloat(rangeMatch[1].replace(",", "."));
+    max_price = parseFloat(rangeMatch[2].replace(",", "."));
+  }
+
+  return { max_price, min_price };
+}
+
 export async function search(
   query: string,
   top_k = 20
 ): Promise<SearchResult[]> {
+  const { max_price, min_price } = parsePriceConstraints(query);
   const data = await request<{ query: string; results: SearchResult[] }>(
     "/search",
-    { method: "POST", body: JSON.stringify({ query, top_k }) }
+    {
+      method: "POST",
+      body: JSON.stringify({
+        query,
+        top_k,
+        ...(max_price !== undefined && { max_price }),
+        ...(min_price !== undefined && { min_price }),
+      }),
+    }
   );
   return data.results;
 }

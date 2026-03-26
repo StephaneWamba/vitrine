@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 class SearchRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=500)
     top_k: int = Field(default=10, ge=1, le=100)
+    max_price: Optional[float] = Field(default=None, ge=0)
+    min_price: Optional[float] = Field(default=None, ge=0)
 
 
 class ProductResult(BaseModel):
