@@ -3,6 +3,13 @@
 import { useState, useRef, useTransition, useCallback } from "react";
 import { search, type SearchResult } from "@/lib/api";
 
+const EXAMPLES = [
+  "slim jeans under $80",
+  "summer dress",
+  "running shoes",
+  "leather handbag",
+];
+
 function tc(s: string) {
   return s.toLowerCase().replace(/(?:^|\s)\S/g, (c) => c.toUpperCase());
 }
@@ -31,8 +38,7 @@ function ResultRow({ item, index }: { item: SearchResult; index: number }) {
         }}
         onClick={() => hasDesc && setOpen((v) => !v)}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLTableRowElement).style.background =
-            "var(--bg-subtle)";
+          (e.currentTarget as HTMLTableRowElement).style.background = "var(--bg-subtle)";
         }}
         onMouseLeave={(e) => {
           (e.currentTarget as HTMLTableRowElement).style.background = "";
@@ -41,16 +47,20 @@ function ResultRow({ item, index }: { item: SearchResult; index: number }) {
         <td className="mono tabnum py-3 pr-4" style={{ fontSize: 11, color: "var(--text-faint)" }}>
           {String(index + 1).padStart(2, "0")}
         </td>
-        <td className="py-3 pr-6" style={{ fontSize: 13, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <td className="py-3 pr-6 hidden sm:table-cell" style={{ fontSize: 13, color: "var(--text-muted)", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {tc(item.brand)}
         </td>
         <td className="py-3 pr-6" style={{ fontSize: 13 }}>
           {tc(item.name)}
+          {/* Show brand inline on xs */}
+          <span className="sm:hidden" style={{ display: "block", fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+            {tc(item.brand)}
+          </span>
         </td>
-        <td className="py-3 pr-6 label-caps hidden md:table-cell" style={{ color: "var(--text-faint)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <td className="py-3 pr-6 label-caps hidden md:table-cell" style={{ color: "var(--text-faint)", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {item.category}
         </td>
-        <td className="py-3 tabnum text-right mono" style={{ color: "var(--accent)", fontSize: 13 }}>
+        <td className="py-3 tabnum text-right mono" style={{ color: "var(--accent)", fontSize: 13, whiteSpace: "nowrap" }}>
           {fmt(item.retail_price)}
         </td>
         <td className="py-3 pl-3 text-right hidden sm:table-cell" style={{ color: "var(--text-faint)", fontSize: 11 }}>
@@ -74,10 +84,10 @@ function Cols() {
   return (
     <colgroup>
       <col style={{ width: 32 }} />
-      <col style={{ width: 130 }} />
+      <col style={{ width: 130 }} className="hidden sm:table-column" />
       <col />
       <col style={{ width: 120 }} className="hidden md:table-column" />
-      <col style={{ width: 70 }} />
+      <col style={{ width: 80 }} />
       <col style={{ width: 20 }} className="hidden sm:table-column" />
     </colgroup>
   );
@@ -87,22 +97,42 @@ export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [topK, setTopK] = useState(20);
   const [isPending, startTransition] = useTransition();
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastQuery = useRef("");
 
-  const run = useCallback((q: string) => {
+  const run = useCallback((q: string, k = 20) => {
     if (!q.trim()) return;
     setError(null);
+    lastQuery.current = q.trim();
     startTransition(async () => {
       try {
-        const data = await search(q.trim());
+        const data = await search(q.trim(), k);
         setResults(data);
+        setTopK(k);
       } catch (e) {
         setError((e as Error).message);
         setResults(null);
       }
     });
   }, []);
+
+  const loadMore = useCallback(async () => {
+    if (!lastQuery.current) return;
+    setIsLoadingMore(true);
+    try {
+      const newK = topK + 20;
+      const data = await search(lastQuery.current, newK);
+      setResults(data);
+      setTopK(newK);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [topK]);
 
   return (
     <div className="max-w-7xl mx-auto px-6">
@@ -125,7 +155,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run(query)}
-            placeholder="slim jeans under $80, summer dress, running shoes…"
+            placeholder="Describe what you're looking for…"
             autoComplete="off"
             spellCheck={false}
             style={{
@@ -141,12 +171,31 @@ export default function SearchPage() {
           <div className="search-line" />
         </div>
 
-        <p className="mt-2 label-caps" style={{ color: "var(--text-faint)" }}>
-          Press Enter to search
-          {isPending && (
-            <span style={{ marginLeft: 12, color: "var(--text-muted)" }}>Searching…</span>
-          )}
-        </p>
+        <div className="mt-3 flex items-center gap-3 flex-wrap">
+          <p className="label-caps" style={{ color: "var(--text-faint)" }}>
+            {isPending ? "Searching…" : "Try:"}
+          </p>
+          {!isPending && EXAMPLES.map((ex) => (
+            <button
+              key={ex}
+              onClick={() => { setQuery(ex); run(ex); }}
+              style={{
+                fontSize: 11,
+                color: "var(--text-muted)",
+                background: "none",
+                border: "1px solid var(--border)",
+                borderRadius: 4,
+                padding: "3px 10px",
+                cursor: "pointer",
+                transition: "border-color 120ms",
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-strong)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)")}
+            >
+              {ex}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (
@@ -160,25 +209,62 @@ export default function SearchPage() {
               No results for &ldquo;{query}&rdquo;
             </p>
           ) : (
-            <table className="w-full table-fixed">
-              <Cols />
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-strong)" }}>
-                  {(
-                    [["#", ""], ["Brand", ""], ["Product", ""], ["Category", "hidden md:table-cell"], ["Price", "text-right"], ["", "hidden sm:table-cell"]] as [string, string][]
-                  ).map(([label, cls]) => (
-                    <th key={label} className={`label-caps text-left pb-3 ${cls}`} style={{ color: "var(--text-faint)", fontWeight: 400 }}>
-                      {label}
-                    </th>
+            <>
+              <p className="label-caps mb-3" style={{ color: "var(--text-faint)" }}>
+                {results.length} results
+              </p>
+              <div className="table-scroll">
+              <table className="w-full table-fixed" style={{ minWidth: 400 }}>
+                <Cols />
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-strong)" }}>
+                    {(
+                      [
+                        ["#", ""],
+                        ["Brand", "hidden sm:table-cell"],
+                        ["Product", ""],
+                        ["Category", "hidden md:table-cell"],
+                        ["Price", "text-right"],
+                        ["", "hidden sm:table-cell"],
+                      ] as [string, string][]
+                    ).map(([label, cls]) => (
+                      <th key={label} className={`label-caps text-left pb-3 ${cls}`} style={{ color: "var(--text-faint)", fontWeight: 400 }}>
+                        {label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((item, i) => (
+                    <ResultRow key={item.product_id} item={item} index={i} />
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((item, i) => (
-                  <ResultRow key={item.product_id} item={item} index={i} />
-                ))}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+              </div>
+
+              {/* Load more */}
+              {results.length === topK && topK < 60 && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={loadMore}
+                    disabled={isLoadingMore}
+                    style={{
+                      background: "none",
+                      border: "1px solid var(--border-strong)",
+                      color: isLoadingMore ? "var(--text-faint)" : "var(--text)",
+                      cursor: isLoadingMore ? "default" : "pointer",
+                      padding: "10px 24px",
+                      fontSize: 12,
+                      letterSpacing: "0.08em",
+                      fontFamily: "var(--font-ui)",
+                      transition: "border-color 120ms",
+                    }}
+                  >
+                    {isLoadingMore ? "Loading…" : "Load more results"}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </section>
       )}

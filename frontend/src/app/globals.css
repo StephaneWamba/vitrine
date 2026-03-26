@@ -79,16 +79,14 @@
 
 .heading-tight { letter-spacing: -0.025em; }
 
-/* Search underline animation */
+/* Search underline — always visible, brightens on focus */
 .search-line {
   height: 1px;
-  background: var(--text);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 260ms var(--ease);
+  background: var(--border-strong);
+  transition: background 200ms var(--ease), transform 260ms var(--ease);
 }
 .search-wrap:focus-within .search-line {
-  transform: scaleX(1);
+  background: var(--text);
 }
 
 /* Staggered row entrance */
@@ -107,3 +105,20 @@
 /* Cluster row hover */
 .cluster-row { transition: background 120ms var(--ease); }
 .cluster-row:hover { background: var(--bg-subtle); }
+
+/* Scrollable tables on small screens */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Focus ring for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
