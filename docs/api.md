@@ -91,8 +91,8 @@ LIMIT 20
 
 ### `services/cluster_service.py`
 
-- `get_clusters` — aggregates cluster size and average price, excludes noise (`cluster_id != -1`).
-- `get_cluster_products` — returns up to 200 products for a given cluster with enriched descriptions.
+- `get_clusters` - aggregates cluster size and average price, excludes noise (`cluster_id != -1`).
+- `get_cluster_products` - returns up to 200 products for a given cluster with enriched descriptions.
 
 Both decorated with `@ttl_cache(seconds=600)`.
 

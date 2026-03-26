@@ -1,4 +1,4 @@
-# Vitrine — Intelligent Product Catalogue
+# Vitrine - Intelligent Product Catalogue
 
 A full-stack data + GenAI platform that turns a raw 29k-product retail dataset into an intelligent catalogue: semantic search with price filtering, unsupervised clustering, AI-generated buyer briefs, and a live analytics dashboard.
 
@@ -12,9 +12,9 @@ Traditional e-commerce search is keyword-based. A buyer who types *"slim jeans u
 
 Three concrete gaps:
 
-1. **Discovery** — keyword search misses semantically close products ("slim fit denim" vs "slim jeans").
-2. **Assortment intelligence** — no automated grouping of 29k products into coherent segments.
-3. **Buyer briefing** — no tool to map a buyer profile to the right product families.
+1. **Discovery** - keyword search misses semantically close products ("slim fit denim" vs "slim jeans").
+2. **Assortment intelligence** - no automated grouping of 29k products into coherent segments.
+3. **Buyer briefing** - no tool to map a buyer profile to the right product families.
 
 ---
 
@@ -57,7 +57,7 @@ graph TD
     BQ_VIEWS --> API
     EMB --> API
 
-    subgraph API [FastAPI — Cloud Run]
+    subgraph API [FastAPI - Cloud Run]
         SEARCH[POST /search\nVECTOR_SEARCH + price filter]
         CLUSTERS[GET /clusters]
         INTENT[POST /intent\nRAG pipeline]
@@ -67,7 +67,7 @@ graph TD
 
     API --> FE
 
-    subgraph FE [Next.js — Vercel]
+    subgraph FE [Next.js - Vercel]
         PG_SEARCH[Catalogue Intelligent]
         PG_CLUSTERS[Collections]
         PG_INTENT[Conseil d'Achat]
@@ -124,7 +124,7 @@ sequenceDiagram
     API->>OpenAI: embed intent
     API->>BigQuery: VECTOR_SEARCH on cluster centroids → top 5 families
     BigQuery-->>API: matching clusters + sample products
-    API->>OpenAI: GPT-4o-mini — generate buyer brief per cluster
+    API->>OpenAI: GPT-4o-mini - generate buyer brief per cluster
     OpenAI-->>API: {positioning, price_range, buyer_action}
     API-->>User: 5 cluster briefs
 ```
@@ -165,7 +165,7 @@ vitrine/
 ├── sql/               # BigQuery DDL and transforms
 ├── docker/            # Dockerfiles for pipeline and API
 ├── infra/             # Setup scripts (GCP, IAM, BQ tables)
-└── .github/workflows/ # CI/CD — build, push, deploy
+└── .github/workflows/ # CI/CD - build, push, deploy
 ```
 
 Full file-level documentation in [`docs/`](docs/).

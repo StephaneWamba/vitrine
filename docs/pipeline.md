@@ -9,7 +9,7 @@ flowchart TD
     A[main.py] --> B[embeddings.run]
     B --> C[clustering.run]
     C --> D[enrichment.run]
-    D --> E[Done — views auto-updated]
+    D --> E[Done - views auto-updated]
 ```
 
 Each step is incremental: it skips products already processed, so re-runs are cheap.

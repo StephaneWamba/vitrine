@@ -42,7 +42,7 @@ flowchart TD
 
 Authentication from GitHub Actions to GCP uses **Workload Identity Federation** (no long-lived service account keys stored in GitHub Secrets).
 
-## Cloud Run — API
+## Cloud Run - API
 
 ```
 --min-instances=1       # eliminates cold start
@@ -53,7 +53,7 @@ Authentication from GitHub Actions to GCP uses **Workload Identity Federation** 
 --service-account=vitrine-cloud-run@...
 ```
 
-## Cloud Run — Pipeline Job
+## Cloud Run - Pipeline Job
 
 ```
 --memory=4Gi            # HDBSCAN needs memory for 29k × 1536 matrix
@@ -72,6 +72,6 @@ Authentication from GitHub Actions to GCP uses **Workload Identity Federation** 
 
 ## Secrets
 
-Only one secret in Secret Manager: `openai-api-key`. The OpenAI key is never stored in source code, `.env` files, or GitHub Secrets — it is fetched at container startup via the `--set-secrets` Cloud Run flag.
+Only one secret in Secret Manager: `openai-api-key`. The OpenAI key is never stored in source code, `.env` files, or GitHub Secrets - it is fetched at container startup via the `--set-secrets` Cloud Run flag.
 
 The `api/.env` file (local dev only) is gitignored.
