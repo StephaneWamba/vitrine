@@ -7,7 +7,7 @@ import { getClusters, type Cluster } from "@/lib/api";
 const PAGE_SIZE = 30;
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -42,7 +42,7 @@ function ClusterRow({ cluster, index }: { cluster: Cluster; index: number }) {
         </p>
 
         <p className="tabnum text-right label-caps" style={{ color: "var(--text-muted)" }}>
-          {cluster.product_count.toLocaleString()}
+          {cluster.product_count.toLocaleString("fr-FR")}
         </p>
       </div>
     </Link>
@@ -74,7 +74,6 @@ export default function ClustersPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  // Reset page when search changes
   const handleSearch = (v: string) => {
     setSearch(v);
     setPage(0);
@@ -83,25 +82,25 @@ export default function ClustersPage() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-16">
       <div className="mb-8">
-        <p className="label-caps" style={{ color: "var(--text-muted)" }}>/ clusters</p>
+        <p className="label-caps" style={{ color: "var(--text-muted)" }}>/ collections</p>
         <h1 className="display heading-tight mt-1" style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-          Product Clusters
+          Collections produits
         </h1>
         {clusters.length > 0 && (
           <p className="mono mt-1" style={{ fontSize: 12, color: "var(--text-muted)" }}>
-            {clusters.length} semantic groups · HDBSCAN
+            {clusters.length} familles de produits identifiées automatiquement
           </p>
         )}
       </div>
 
-      {/* Search filter */}
+      {/* Filtre */}
       {clusters.length > 0 && (
         <div className="mb-6 max-w-sm">
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Filter clusters…"
+            placeholder="Filtrer les collections…"
             style={{
               width: "100%",
               background: "transparent",
@@ -120,15 +119,15 @@ export default function ClustersPage() {
         <p className="mono" style={{ fontSize: 12, color: "var(--red)" }}>{error}</p>
       ) : loading ? (
         <div className="py-20 flex items-center justify-center">
-          <p className="mono" style={{ fontSize: 12, color: "var(--text-faint)" }}>Loading clusters…</p>
+          <p className="mono" style={{ fontSize: 12, color: "var(--text-faint)" }}>Chargement…</p>
         </div>
       ) : filtered.length === 0 ? (
         <p className="mono" style={{ fontSize: 12, color: "var(--text-muted)" }}>
-          {search ? `No clusters matching "${search}"` : "No clusters yet — run the pipeline first."}
+          {search ? `Aucune collection correspondant à "${search}"` : "Aucune collection disponible."}
         </p>
       ) : (
         <>
-          {/* Header row */}
+          {/* En-têtes */}
           <div
             className="grid gap-4 pb-2"
             style={{
@@ -137,9 +136,9 @@ export default function ClustersPage() {
             }}
           >
             <span className="label-caps" style={{ color: "var(--text-faint)" }}>#</span>
-            <span className="label-caps" style={{ color: "var(--text-faint)" }}>Cluster</span>
-            <span className="label-caps text-right" style={{ color: "var(--text-faint)" }}>Avg price</span>
-            <span className="label-caps text-right" style={{ color: "var(--text-faint)" }}>Items</span>
+            <span className="label-caps" style={{ color: "var(--text-faint)" }}>Collection</span>
+            <span className="label-caps text-right" style={{ color: "var(--text-faint)" }}>Prix moyen</span>
+            <span className="label-caps text-right" style={{ color: "var(--text-faint)" }}>Articles</span>
           </div>
 
           <div>
@@ -150,29 +149,20 @@ export default function ClustersPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 mb-16 flex items-center justify-between">
+            <div className="mt-8 mb-16 flex items-center justify-between flex-wrap gap-4">
               <p className="mono" style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
+                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} sur {filtered.length}
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => { setPage((p) => Math.max(0, p - 1)); window.scrollTo(0, 0); }}
                   disabled={page === 0}
                   className="label-caps"
-                  style={{
-                    padding: "6px 14px",
-                    background: "none",
-                    border: "1px solid var(--border-strong)",
-                    cursor: page === 0 ? "default" : "pointer",
-                    color: page === 0 ? "var(--text-faint)" : "var(--text)",
-                    fontSize: 11,
-                    letterSpacing: "0.1em",
-                  }}
+                  style={{ padding: "6px 14px", background: "none", border: "1px solid var(--border-strong)", cursor: page === 0 ? "default" : "pointer", color: page === 0 ? "var(--text-faint)" : "var(--text)", fontSize: 11, letterSpacing: "0.1em" }}
                 >
-                  ← Prev
+                  ← Préc.
                 </button>
 
-                {/* Page numbers (show max 5 around current) */}
                 {Array.from({ length: totalPages }, (_, i) => i)
                   .filter((i) => Math.abs(i - page) <= 2)
                   .map((i) => (
@@ -180,15 +170,7 @@ export default function ClustersPage() {
                       key={i}
                       onClick={() => { setPage(i); window.scrollTo(0, 0); }}
                       className="mono tabnum"
-                      style={{
-                        width: 32,
-                        height: 32,
-                        border: i === page ? "1px solid var(--text)" : "1px solid var(--border)",
-                        background: i === page ? "var(--text)" : "none",
-                        color: i === page ? "var(--bg-surface)" : "var(--text-muted)",
-                        cursor: "pointer",
-                        fontSize: 12,
-                      }}
+                      style={{ width: 32, height: 32, border: i === page ? "1px solid var(--text)" : "1px solid var(--border)", background: i === page ? "var(--text)" : "none", color: i === page ? "var(--bg-surface)" : "var(--text-muted)", cursor: "pointer", fontSize: 12 }}
                     >
                       {i + 1}
                     </button>
@@ -198,17 +180,9 @@ export default function ClustersPage() {
                   onClick={() => { setPage((p) => Math.min(totalPages - 1, p + 1)); window.scrollTo(0, 0); }}
                   disabled={page === totalPages - 1}
                   className="label-caps"
-                  style={{
-                    padding: "6px 14px",
-                    background: "none",
-                    border: "1px solid var(--border-strong)",
-                    cursor: page === totalPages - 1 ? "default" : "pointer",
-                    color: page === totalPages - 1 ? "var(--text-faint)" : "var(--text)",
-                    fontSize: 11,
-                    letterSpacing: "0.1em",
-                  }}
+                  style={{ padding: "6px 14px", background: "none", border: "1px solid var(--border-strong)", cursor: page === totalPages - 1 ? "default" : "pointer", color: page === totalPages - 1 ? "var(--text-faint)" : "var(--text)", fontSize: 11, letterSpacing: "0.1em" }}
                 >
-                  Next →
+                  Suiv. →
                 </button>
               </div>
             </div>

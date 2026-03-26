@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const LINKS = [
-  { href: "/", label: "Search" },
-  { href: "/clusters", label: "Clusters" },
-  { href: "/intent", label: "Intent" },
-  { href: "/analytics", label: "Analytics" },
-  { href: "/quality", label: "Quality" },
+  { href: "/", label: "Rechercher" },
+  { href: "/clusters", label: "Collections" },
+  { href: "/intent", label: "Conseil achat" },
+  { href: "/analytics", label: "Analyses" },
+  { href: "/quality", label: "Qualité" },
 ];
 
 const LOOKER_URL =
@@ -23,7 +23,7 @@ export default function Nav() {
     <nav
       style={{ borderBottom: "1px solid var(--border)", background: "var(--bg)" }}
       className="sticky top-0 z-50"
-      aria-label="Main navigation"
+      aria-label="Navigation principale"
     >
       <div className="max-w-7xl mx-auto px-6 h-12 flex items-center justify-between">
         {/* Brand */}
@@ -68,7 +68,7 @@ export default function Nav() {
         {/* Mobile hamburger */}
         <button
           className="md:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           onClick={() => setOpen((v) => !v)}
           style={{
             background: "none",
@@ -81,49 +81,16 @@ export default function Nav() {
             gap: 5,
           }}
         >
-          <span
-            style={{
-              display: "block",
-              width: 22,
-              height: 1,
-              background: "currentColor",
-              transition: "transform 200ms, opacity 200ms",
-              transformOrigin: "center",
-              transform: open ? "translateY(6px) rotate(45deg)" : "none",
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              width: 22,
-              height: 1,
-              background: "currentColor",
-              transition: "opacity 200ms",
-              opacity: open ? 0 : 1,
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              width: 22,
-              height: 1,
-              background: "currentColor",
-              transition: "transform 200ms, opacity 200ms",
-              transformOrigin: "center",
-              transform: open ? "translateY(-6px) rotate(-45deg)" : "none",
-            }}
-          />
+          <span style={{ display: "block", width: 22, height: 1, background: "currentColor", transition: "transform 200ms, opacity 200ms", transformOrigin: "center", transform: open ? "translateY(6px) rotate(45deg)" : "none" }} />
+          <span style={{ display: "block", width: 22, height: 1, background: "currentColor", transition: "opacity 200ms", opacity: open ? 0 : 1 }} />
+          <span style={{ display: "block", width: 22, height: 1, background: "currentColor", transition: "transform 200ms, opacity 200ms", transformOrigin: "center", transform: open ? "translateY(-6px) rotate(-45deg)" : "none" }} />
         </button>
       </div>
 
       {/* Mobile drawer */}
       {open && (
         <div
-          style={{
-            background: "var(--bg)",
-            borderBottom: "1px solid var(--border)",
-            padding: "16px 24px 20px",
-          }}
+          style={{ background: "var(--bg)", borderBottom: "1px solid var(--border)", padding: "16px 24px 20px" }}
           className="md:hidden"
         >
           <ul className="flex flex-col gap-5 list-none">
@@ -134,10 +101,7 @@ export default function Nav() {
                   <Link
                     href={href}
                     className="label-caps"
-                    style={{
-                      color: active ? "var(--text)" : "var(--text-muted)",
-                      fontSize: 12,
-                    }}
+                    style={{ color: active ? "var(--text)" : "var(--text-muted)", fontSize: 12 }}
                     onClick={() => setOpen(false)}
                   >
                     {label}

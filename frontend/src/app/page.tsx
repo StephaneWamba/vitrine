@@ -4,10 +4,10 @@ import { useState, useRef, useTransition, useCallback } from "react";
 import { search, type SearchResult } from "@/lib/api";
 
 const EXAMPLES = [
-  "slim jeans under $80",
-  "summer dress",
-  "running shoes",
-  "leather handbag",
+  "jean slim moins de 80$",
+  "robe d'été",
+  "chaussures de running",
+  "sac en cuir",
 ];
 
 function tc(s: string) {
@@ -15,7 +15,7 @@ function tc(s: string) {
 }
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -52,7 +52,6 @@ function ResultRow({ item, index }: { item: SearchResult; index: number }) {
         </td>
         <td className="py-3 pr-6" style={{ fontSize: 13 }}>
           {tc(item.name)}
-          {/* Show brand inline on xs */}
           <span className="sm:hidden" style={{ display: "block", fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
             {tc(item.brand)}
           </span>
@@ -142,10 +141,10 @@ export default function SearchPage() {
           className="display heading-tight"
           style={{ fontSize: "clamp(36px, 5vw, 56px)", lineHeight: 1.1 }}
         >
-          Product Intelligence
+          Catalogue Intelligent
         </h1>
         <p className="mono mt-2" style={{ fontSize: 12, color: "var(--text-muted)" }}>
-          29,118 products · semantic search · 603 semantic clusters
+          29 118 articles · recherche par description · 603 familles de produits
         </p>
 
         <div className="search-wrap mt-8 max-w-xl">
@@ -155,7 +154,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run(query)}
-            placeholder="Describe what you're looking for…"
+            placeholder="Décrivez ce que vous cherchez…"
             autoComplete="off"
             spellCheck={false}
             style={{
@@ -173,7 +172,7 @@ export default function SearchPage() {
 
         <div className="mt-3 flex items-center gap-3 flex-wrap">
           <p className="label-caps" style={{ color: "var(--text-faint)" }}>
-            {isPending ? "Searching…" : "Try:"}
+            {isPending ? "Recherche en cours…" : "Exemples :"}
           </p>
           {!isPending && EXAMPLES.map((ex) => (
             <button
@@ -206,43 +205,43 @@ export default function SearchPage() {
         <section className="mb-16">
           {results.length === 0 ? (
             <p className="py-12 mono text-center" style={{ fontSize: 12, color: "var(--text-muted)" }}>
-              No results for &ldquo;{query}&rdquo;
+              Aucun résultat pour &ldquo;{query}&rdquo;
             </p>
           ) : (
             <>
               <p className="label-caps mb-3" style={{ color: "var(--text-faint)" }}>
-                {results.length} results
+                {results.length} résultat{results.length > 1 ? "s" : ""}
               </p>
               <div className="table-scroll">
-              <table className="w-full table-fixed" style={{ minWidth: 400 }}>
-                <Cols />
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border-strong)" }}>
-                    {(
-                      [
-                        ["#", ""],
-                        ["Brand", "hidden sm:table-cell"],
-                        ["Product", ""],
-                        ["Category", "hidden md:table-cell"],
-                        ["Price", "text-right"],
-                        ["", "hidden sm:table-cell"],
-                      ] as [string, string][]
-                    ).map(([label, cls]) => (
-                      <th key={label} className={`label-caps text-left pb-3 ${cls}`} style={{ color: "var(--text-faint)", fontWeight: 400 }}>
-                        {label}
-                      </th>
+                <table className="w-full table-fixed" style={{ minWidth: 400 }}>
+                  <Cols />
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--border-strong)" }}>
+                      {(
+                        [
+                          ["#", ""],
+                          ["Marque", "hidden sm:table-cell"],
+                          ["Article", ""],
+                          ["Catégorie", "hidden md:table-cell"],
+                          ["Prix", "text-right"],
+                          ["", "hidden sm:table-cell"],
+                        ] as [string, string][]
+                      ).map(([label, cls]) => (
+                        <th key={label} className={`label-caps text-left pb-3 ${cls}`} style={{ color: "var(--text-faint)", fontWeight: 400 }}>
+                          {label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.map((item, i) => (
+                      <ResultRow key={item.product_id} item={item} index={i} />
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map((item, i) => (
-                    <ResultRow key={item.product_id} item={item} index={i} />
-                  ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
               </div>
 
-              {/* Load more */}
+              {/* Voir plus */}
               {results.length === topK && topK < 60 && (
                 <div className="mt-6 flex justify-center">
                   <button
@@ -260,7 +259,7 @@ export default function SearchPage() {
                       transition: "border-color 120ms",
                     }}
                   >
-                    {isLoadingMore ? "Loading…" : "Load more results"}
+                    {isLoadingMore ? "Chargement…" : "Voir plus de résultats"}
                   </button>
                 </div>
               )}

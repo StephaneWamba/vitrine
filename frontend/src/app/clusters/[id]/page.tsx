@@ -7,7 +7,7 @@ function tc(s: string) {
 }
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -85,17 +85,17 @@ export default async function ClusterDetailPage({
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-16">
-      {/* Breadcrumb */}
+      {/* Fil d'Ariane */}
       <p className="label-caps" style={{ color: "var(--text-muted)" }}>
         <Link href="/clusters" style={{ color: "var(--text-muted)", textDecoration: "none" }}>
-          / clusters
+          / collections
         </Link>
         {data && (
           <span style={{ color: "var(--text-faint)" }}> / {data.cluster_id}</span>
         )}
       </p>
 
-      {/* Header */}
+      {/* En-tête */}
       {data && (
         <div className="mt-2 mb-10">
           <div className="flex items-baseline gap-4 flex-wrap">
@@ -115,14 +115,14 @@ export default async function ClusterDetailPage({
 
           <div className="flex gap-8 mt-4">
             <div>
-              <p className="label-caps" style={{ color: "var(--text-faint)" }}>Products</p>
+              <p className="label-caps" style={{ color: "var(--text-faint)" }}>Articles</p>
               <p className="tabnum mono" style={{ fontSize: 20 }}>
-                {data.products.length.toLocaleString()}
+                {data.products.length.toLocaleString("fr-FR")}
               </p>
             </div>
             {data.products.length > 0 && (
               <div>
-                <p className="label-caps" style={{ color: "var(--text-faint)" }}>Avg price</p>
+                <p className="label-caps" style={{ color: "var(--text-faint)" }}>Prix moyen</p>
                 <p className="tabnum mono" style={{ fontSize: 20, color: "var(--accent)" }}>
                   {fmt(
                     data.products.reduce((s, p) => s + p.retail_price, 0) /
@@ -143,9 +143,9 @@ export default async function ClusterDetailPage({
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border-strong)" }}>
               <th className="label-caps text-left pb-3" style={{ color: "var(--text-faint)", fontWeight: 400 }}>#</th>
-              <th className="label-caps text-left pb-3" style={{ color: "var(--text-faint)", fontWeight: 400 }}>Brand</th>
-              <th className="label-caps text-left pb-3" style={{ color: "var(--text-faint)", fontWeight: 400 }}>Product</th>
-              <th className="label-caps text-right pb-3" style={{ color: "var(--text-faint)", fontWeight: 400 }}>Price</th>
+              <th className="label-caps text-left pb-3" style={{ color: "var(--text-faint)", fontWeight: 400 }}>Marque</th>
+              <th className="label-caps text-left pb-3" style={{ color: "var(--text-faint)", fontWeight: 400 }}>Article</th>
+              <th className="label-caps text-right pb-3" style={{ color: "var(--text-faint)", fontWeight: 400 }}>Prix</th>
             </tr>
           </thead>
           <tbody>

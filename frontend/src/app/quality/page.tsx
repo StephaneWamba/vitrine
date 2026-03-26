@@ -3,7 +3,7 @@ import { getQuality, type QualityReport } from "@/lib/api";
 export const dynamic = "force-dynamic";
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -65,22 +65,21 @@ export default async function QualityPage() {
     report = await getQuality();
   } catch (e) {
     const msg = (e as Error).message;
-    // 404 = no report yet, not an error
     if (!msg.startsWith("404")) error = msg;
   }
 
   return (
     <div>
-      {/* ── Hero with grid texture ─────────────────────────────────── */}
+      {/* ── Hero avec texture ──────────────────────────────────────── */}
       <div className="grid-texture" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-7xl mx-auto px-6 py-16">
-          <p className="label-caps" style={{ color: "var(--text-muted)" }}>/ quality</p>
+          <p className="label-caps" style={{ color: "var(--text-muted)" }}>/ qualité</p>
           <h1 className="display heading-tight mt-1" style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-            Data Quality Report
+            Rapport qualité
           </h1>
           {report && (
             <p className="mono mt-1" style={{ fontSize: 12, color: "var(--text-muted)" }}>
-              {new Date(report.report_timestamp).toLocaleDateString("en-US", {
+              {new Date(report.report_timestamp).toLocaleDateString("fr-FR", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -97,48 +96,48 @@ export default async function QualityPage() {
           <p className="mono" style={{ fontSize: 12, color: "var(--red)" }}>{error}</p>
         ) : !report ? (
           <p className="mono" style={{ fontSize: 12, color: "var(--text-muted)" }}>
-            No quality report yet — run the pipeline first.
+            Aucun rapport disponible.
           </p>
         ) : (
           <>
-            {/* ── KPIs ──────────────────────────────────────────────── */}
+            {/* ── KPIs ────────────────────────────────────────────── */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 mb-16">
-              <KPI value={report.total_records.toLocaleString()} label="Total records" />
-              <KPI value={report.valid_records.toLocaleString()} label="Valid records" />
+              <KPI value={report.total_records.toLocaleString("fr-FR")} label="Articles au total" />
+              <KPI value={report.valid_records.toLocaleString("fr-FR")} label="Données valides" />
               <KPI
                 value={`${report.completeness_pct.toFixed(1)}%`}
-                label="Completeness"
+                label="Complétude"
                 accent
               />
               {report.price_mean !== null && (
-                <KPI value={fmt(report.price_mean)} label="Avg price" accent />
+                <KPI value={fmt(report.price_mean)} label="Prix moyen" accent />
               )}
             </div>
 
-            {/* ── Field coverage ────────────────────────────────────── */}
+            {/* ── Couverture des champs ────────────────────────────── */}
             <div className="grid md:grid-cols-2 gap-x-16 mb-16">
               <div>
                 <h2 className="display heading-tight mb-4" style={{ fontSize: 20 }}>
-                  Field Coverage
+                  Couverture des champs
                 </h2>
-                {report.field_name_completeness !== null && (() => { const p = pct(report.field_name_completeness, report.total_records)!; return <StatRow label="Name" value={`${p}%`} bar={p} />; })()}
-                {report.field_brand_completeness !== null && (() => { const p = pct(report.field_brand_completeness, report.total_records)!; return <StatRow label="Brand" value={`${p}%`} bar={p} />; })()}
-                {report.field_cat_completeness !== null && (() => { const p = pct(report.field_cat_completeness, report.total_records)!; return <StatRow label="Category" value={`${p}%`} bar={p} />; })()}
-                {report.field_price_completeness !== null && (() => { const p = pct(report.field_price_completeness, report.total_records)!; return <StatRow label="Price" value={`${p}%`} bar={p} />; })()}
+                {report.field_name_completeness !== null && (() => { const p = pct(report.field_name_completeness, report.total_records)!; return <StatRow label="Nom" value={`${p}%`} bar={p} />; })()}
+                {report.field_brand_completeness !== null && (() => { const p = pct(report.field_brand_completeness, report.total_records)!; return <StatRow label="Marque" value={`${p}%`} bar={p} />; })()}
+                {report.field_cat_completeness !== null && (() => { const p = pct(report.field_cat_completeness, report.total_records)!; return <StatRow label="Catégorie" value={`${p}%`} bar={p} />; })()}
+                {report.field_price_completeness !== null && (() => { const p = pct(report.field_price_completeness, report.total_records)!; return <StatRow label="Prix" value={`${p}%`} bar={p} />; })()}
               </div>
 
-              {/* ── Price range ───────────────────────────────────────── */}
+              {/* ── Fourchette de prix ──────────────────────────────── */}
               {report.price_min !== null && (
                 <div>
                   <h2 className="display heading-tight mb-4" style={{ fontSize: 20 }}>
-                    Price Range
+                    Fourchette de prix
                   </h2>
-                  <StatRow label="Min" value={fmt(report.price_min)} />
+                  <StatRow label="Minimum" value={fmt(report.price_min)} />
                   {report.price_mean !== null && (
-                    <StatRow label="Mean" value={fmt(report.price_mean)} />
+                    <StatRow label="Moyen" value={fmt(report.price_mean)} />
                   )}
                   {report.price_max !== null && (
-                    <StatRow label="Max" value={fmt(report.price_max)} />
+                    <StatRow label="Maximum" value={fmt(report.price_max)} />
                   )}
                 </div>
               )}

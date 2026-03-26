@@ -5,8 +5,8 @@ import Footer from "@/components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Vitrine — Product Intelligence",
-  description: "Semantic product search and clustering",
+  title: "Vitrine — Catalogue Intelligent",
+  description: "Recherche intelligente et analyse du catalogue produit",
   icons: { icon: "/favicon.svg" },
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="fr" className="h-full">
       <body className="min-h-full flex flex-col">
         <Nav />
         <OnboardingGuide />
